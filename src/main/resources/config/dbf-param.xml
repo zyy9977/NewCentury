@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="GBK"?>
+<root>
+    <dbf id="testDbf" name="测试Excel转dbf">
+        <col field="资金账户" type="string" index="0" width="32"/>
+        <col field="股票代码" type="string" index="1" width="32"/>
+        <col field="持仓数量" type="number" index="2" width="16" decimal="4"/>
+        <col field="处理标志" type="string" index="3" width="9"/>
+        <col field="备注"     type="string" index="4" width="128"/>
+    </dbf>
+</root>

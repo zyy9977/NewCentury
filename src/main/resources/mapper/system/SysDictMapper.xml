@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nc.core.system.dao.SysDictDao">
+
+    <select id="getDictByDictItem" resultType="com.nc.core.system.pojo.SysDict" parameterType="java.lang.String">
+        select * from sys_dict
+        <where>
+            <choose>
+                <when test="dictitem != null and dictitem != ''">
+                    dictitem = #{dictitem}
+                </when>
+            </choose>
+        </where>
+    </select>
+    
+    <select id="getDictForDist" resultType="com.nc.core.system.pojo.SysDict">
+        select distinct(dictitem), itemname from sys_dict
+    </select>
+
+</mapper>

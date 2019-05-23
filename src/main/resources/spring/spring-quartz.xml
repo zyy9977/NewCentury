@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 调度业务 -->
+	<!--<bean id="jobDetail_1" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="weChatJob" />
+		<property name="targetMethod" value="handleAccessToken" />
+		<property name="concurrent" value="false"/>
+	</bean>
+
+	<bean id="jobDetail_2" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="weChatJob" />
+		<property name="targetMethod" value="handleCreateMenu" />
+		<property name="concurrent" value="false"/>
+	</bean>
+
+	&lt;!&ndash; 调度触发器&ndash;&gt;
+	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="jobDetail_1" />
+		<property name="cronExpression" value="0 0 * * * ?" /> &lt;!&ndash; 一小时执行一次&ndash;&gt;
+		&lt;!&ndash;<property name="cronExpression" value="0 0/2 * * * ?" /> &lt;!&ndash; 2分钟执行一次&ndash;&gt;&ndash;&gt;
+	</bean>
+
+	&lt;!&ndash; 配置触发器 启动时执行一次&ndash;&gt;
+	<bean id="taskTrigger_1" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="jobDetail_1" />
+		<property name="startDelay" value="5000" />
+		<property name="repeatInterval" value="1000" />
+		<property name="repeatCount" value="0" />
+	</bean>
+
+	&lt;!&ndash; 配置触发器 启动时执行一次&ndash;&gt;
+	<bean id="taskTrigger_2" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="jobDetail_2" />
+		<property name="startDelay" value="10000" />
+		<property name="repeatInterval" value="0" />
+		<property name="repeatCount" value="0" />
+	</bean>
+
+	&lt;!&ndash; 设置调度 &ndash;&gt;
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean" lazy-init="false">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTrigger" />
+				<ref bean="taskTrigger_1" />
+				&lt;!&ndash;<ref bean="taskTrigger_2" />&ndash;&gt;
+			</list>
+		</property>
+	</bean>-->
+
+	<bean id="initCacheList" class="com.nc.common.init.InitCacheList"></bean>
+
+	<bean id="jobDetails" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="initCacheList" />
+		<property name="targetMethod" value="init" />
+		<property name="concurrent" value="false"/>
+	</bean>
+
+	<!--配置触发器 启动时执行一次-->
+	<bean id="taskTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+		<property name="jobDetail" ref="jobDetails" />
+		<property name="startDelay" value="5000" />
+		<property name="repeatInterval" value="1000" />
+		<property name="repeatCount" value="0" />
+	</bean>
+
+	<!-- 设置调度 -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean" lazy-init="false">
+		<property name="triggers">
+			<list>
+				<ref bean="taskTrigger" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nc.core.system.dao.UserDao">
+
+    <resultMap id="queryForList" type="com.nc.core.system.pojo.Sys_User">
+        <id column="uid" property="uid" jdbcType="INTEGER"></id>
+        <result column="username" property="userName" jdbcType="VARCHAR"></result>
+        <result column="password" property="password" jdbcType="VARCHAR"></result>
+        <result column="chinesename" property="chineseName" jdbcType="VARCHAR"></result>
+        <result column="remark" property="remark" jdbcType="VARCHAR"></result>
+        <collection property="roleList" javaType="java.util.List" ofType="com.nc.core.system.pojo.Sys_Role">
+            <id column="role_id" property="id" jdbcType="INTEGER"></id>
+            <result column="role" property="role" jdbcType="VARCHAR"></result>
+            <result column="rolename" property="roleName" jdbcType="VARCHAR"></result>
+        </collection>
+        <collection property="menuList" javaType="java.util.List" ofType="com.nc.core.system.pojo.Sys_Menu">
+            <id column="id" property="id" jdbcType="INTEGER"></id>
+            <result column="name" property="name" jdbcType="VARCHAR"></result>
+            <result column="path" property="path" jdbcType="VARCHAR"></result>
+            <result column="component" property="component" jdbcType="VARCHAR"></result>
+            <result column="parent_id" property="parent_id" jdbcType="VARCHAR"></result>
+            <result column="icon" property="icon" jdbcType="VARCHAR"></result>
+            <result column="title" property="title" jdbcType="VARCHAR"></result>
+        </collection>
+    </resultMap>
+
+    <select id="selectUserByName" resultMap="queryForList" parameterType="java.lang.String">
+      SELECT
+            a.uid,
+            a.username,
+            a.password,
+            a.chinesename,
+            a.remark,
+            b.id as role_id,
+            b.role,
+            b.rolename,
+            e.*
+        FROM
+            sys_user a
+            INNER JOIN sys_role b
+            INNER JOIN sys_user_role c
+            INNER JOIN sys_role_menu d
+            INNER JOIN sys_menu e
+        WHERE
+            a.uid = c.user_id
+            AND b.id = c.role_id
+            AND b.id = d.role_id
+            AND e.id = d.menu_id
+            AND a.username = #{username};
+    </select>
+    
+    <select id="getPermissionByUserName" parameterType="java.lang.String" resultType="com.nc.core.system.pojo.Sys_Permission">
+        SELECT
+            distinct(a.id),
+            a.`name`
+        FROM
+            sys_permission a
+            INNER JOIN sys_role_permission b
+        WHERE
+            a.id = b.permission_id
+            AND b.role_id IN (
+            SELECT DISTINCT
+                ( b.role_id )
+            FROM
+                sys_user a
+                INNER JOIN sys_user_role b
+            WHERE
+                a.uid = b.user_id
+            AND a.username = #{username}
+            );
+    </select>
+
+</mapper>

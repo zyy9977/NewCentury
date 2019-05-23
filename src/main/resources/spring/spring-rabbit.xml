@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   					  http://www.springframework.org/schema/beans/spring-beans.xsd
+           				  http://www.springframework.org/schema/rabbit
+           				  http://www.springframework.org/schema/rabbit/spring-rabbit-1.4.xsd
+           				  http://www.springframework.org/schema/context
+           				  http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!--<context:component-scan base-package="com.nc.common.rabbitmq.*" />-->
+	<!--1、配置连接工厂, 如果不配置host, port, username, passowrd, 则按默认值localhost:5672, guest/guest-->
+	<rabbit:connection-factory id="connectionFactory" host="${amq.host}" username="${amq.username}" password="${amq.password}" port="${amq.port}" />
+	<!--2、配置队列queue, Exchange, 以及将他们结合在一起的binding-->
+	<!--在queue以及exchange中, 有一个重要的属性durable, 默认为true, 可以防止宕机后数据丢失。-->
+	<!--在listener-container中, 有acknowledge属性, 默认为auto, 即消费者成功处理消息后必须有个应答, 如果消费者程序发生异常或者宕机, 消息会被重新放回队列-->
+	<rabbit:admin id="rabbitAdmin" connection-factory="connectionFactory"/>
+
+	<!--定义rabbit template用于数据的接收和发送 -->
+	<!--<rabbit:template id="amqpTemplate" connection-factory="connectionFactory" exchange="exchangeTest" />-->
+
+	<rabbit:template id="rabbitTemplate" connection-factory="connectionFactory"/>
+
+	<!-- queue 声明一个队列-->
+	<!--默认的routing key与队列的名称相同-->
+	<!--durable: 是否持久化 -->
+	<rabbit:queue id="queue_1" name="queue_1" durable="true" auto-delete="false" exclusive="false" declared-by="rabbitAdmin" />
+	<!--<rabbit:queue id="queue_2" name="queue_2" durable="true" auto-delete="false" exclusive="false" declared-by="connectAdmin" />-->
+
+	<!-- exchange queue binging key 绑定 -->
+	<!--标准的AMQP Exchange有4种: Direct, Topic, Headers, Fanout, 根据实际需要选择。-->
+	<!--Direct: 如果消息的routing key与bingding的routing key直接匹配的话, 消息将会路由到该队列上。-->
+	<!--Topic: 如果消息的routing key与bingding的routing key符合通配符匹配的话, 消息将会路由到该队列上。-->
+	<!--Headers: 如果消息参数表中的头信息和值都与binding参数表中相匹配, 消息将会路由到该队列上。-->
+	<!--Fanout: 不管消息的routing key和参数表的头信息/值是什么, 消息将会路由到该队列上。-->
+	<!--<rabbit:direct-exchange name="exchangeTest" durable="true" auto-delete="false" declared-by="connectAdmin" >-->
+		<!--<rabbit:bindings>-->
+			<!--<rabbit:binding queue="queue_1" key="queue_1"/>-->
+			<!--<rabbit:binding queue="queue_2" key="queue_2"/>-->
+		<!--</rabbit:bindings>-->
+	<!--</rabbit:direct-exchange>-->
+
+	<!--<rabbit:topic-exchange name="topicExchange" durable="true" auto-delete="false" declared-by="connectAdmin" >-->
+		<!--<rabbit:bindings>-->
+			<!--<rabbit:binding queue="queue_1" pattern="level.*.log"></rabbit:binding>-->
+			<!--<rabbit:binding queue="queue_2" pattern="level.zyy.log"></rabbit:binding>-->
+		<!--</rabbit:bindings>-->
+	<!--</rabbit:topic-exchange>-->
+	
+	<!--<rabbit:fanout-exchange name="fanoutExchange" auto-delete="false" durable="true" id="fanoutExchange">-->
+		<!--<rabbit:bindings>-->
+			<!--<rabbit:binding queue="queue_1"></rabbit:binding>-->
+			<!--<rabbit:binding queue="queue_2"></rabbit:binding>-->
+		<!--</rabbit:bindings>-->
+	<!--</rabbit:fanout-exchange>-->
+
+	<!--<rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto">-->
+		<!--<rabbit:listener queues="queue_1" ref="queueListenter"/>-->
+		<!--<rabbit:listener queues="queue_2" ref="queueListenter"/>-->
+	<!--</rabbit:listener-container>-->
+
+	<bean id="simpleMessageListenerContainer" class="org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory"/>
+		<property name="queues" ref="queue_1"/>
+	</bean>
+
+</beans>

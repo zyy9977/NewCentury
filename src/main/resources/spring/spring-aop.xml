@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--声明式事务管理（基于AOP的 xml 配置）-->
+    <aop:config>
+        <aop:pointcut id="advice" expression="execution(* com.nc.core.*.service.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="advice"/>
+    </aop:config>
+
+    <!--异常统一处理-->
+    <bean id="exceptionAspect" class="com.nc.aop.ExceptionAspect">
+        <property name="showException" value="${show.exception}"/>
+    </bean>
+    <aop:config>
+        <aop:pointcut id="exception" expression="execution(* com.nc.core.*.controller.*.*(..))"></aop:pointcut>
+        <aop:aspect ref="exceptionAspect" order="0">
+            <aop:after-throwing pointcut-ref="exception" method="writeContent" throwing="ex"></aop:after-throwing>
+        </aop:aspect>
+    </aop:config>
+
+    <!--excel导入-->
+    <bean id="excelAfterAspect" class="com.nc.core.excel.aop.ExcelAfterAspect"></bean>
+    <aop:config>
+        <aop:pointcut id="excel" expression="execution(* com.nc.core.excel.service.serviceImpl.ExcelServiceImpl.insertObjectListService(..))"></aop:pointcut>
+        <aop:aspect ref="excelAfterAspect" order="1">
+            <aop:after-throwing method="afterMethod" pointcut-ref="excel" throwing="e"></aop:after-throwing>
+        </aop:aspect>
+    </aop:config>
+
+</beans>

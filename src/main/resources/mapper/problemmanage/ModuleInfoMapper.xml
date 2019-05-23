@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.nc.core.problemmanage.dao.ModuleInfoDao">
+
+    <select id="getModuleInfoListDao" resultType="com.nc.core.problemmanage.pojo.ModuleInfo" parameterType="java.lang.Integer">
+        select * from pm_moduleinfo limit #{page} , #{pageSize};
+    </select>
+    
+    <select id="selectModuleInfoTotal" resultType="java.lang.Integer">
+      select count(moduleid) as total from pm_moduleinfo;
+    </select>
+
+    <insert id="addModuleInfoDao" parameterType="com.nc.core.problemmanage.pojo.ModuleInfo">
+        insert into pm_moduleinfo(sysname,moduleid,modulename,busiscope,moduleprice,functionary,
+        projdesigner,developer,tester,upgradecustomer,remark)
+        values(#{sysname},#{moduleid},#{modulename},#{busiscope},#{moduleprice},#{functionary},
+        #{projdesigner},#{developer},#{tester},#{upgradecustomer},#{remark});
+    </insert>
+    
+    <update id="updModuleInfoDao" parameterType="com.nc.core.problemmanage.pojo.ModuleInfo">
+        update pm_moduleinfo set modulename=#{modulename},busiscope=#{busiscope},moduleprice=#{moduleprice},
+        functionary=#{functionary},projdesigner=#{projdesigner},developer=#{developer},tester=#{tester},
+        upgradecustomer=#{upgradecustomer},remark=#{remark} where sysname=#{sysname} and moduleid=#{moduleid};
+    </update>
+    
+    <delete id="delModuleInfoDao" parameterType="com.nc.core.problemmanage.pojo.ModuleInfo">
+        delete from pm_moduleinfo where sysname = #{sysname} and moduleid = #{moduleid};
+    </delete>
+
+</mapper>
